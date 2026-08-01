@@ -6,11 +6,13 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: "http://localhost:5173", // React Vite URL
+    origin: [
+      "http://localhost:5173",
+      "https://assesment1frontend.onrender.com",
+    ],
     credentials: true,
   })
 );
-
 app.use("/api/employees", noteRoutes);
 app.get("/", (req, res) => {
   res.json({
