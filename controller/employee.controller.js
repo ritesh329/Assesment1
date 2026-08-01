@@ -1,19 +1,42 @@
 import Employee from "../model/employee.model.js";
 
 // Create Employee
+// Create Employee
 export const createEmployee = async (req, res) => {
   try {
     const employee = await Employee.create(req.body);
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
-      message: "Employee created successfully",
+      message: "Employee created successfully.",
       data: employee,
     });
   } catch (error) {
-    res.status(500).json({
+    // Duplicate Key Error
+    if (error.code === 11000) {
+      const field = Object.keys(error.keyPattern)[0];
+
+      return res.status(409).json({
+        success: false,
+        message: `${field.charAt(0).toUpperCase() + field.slice(1)} already exists.`,
+      });
+    }
+
+    // Validation Error
+    if (error.name === "ValidationError") {
+      const errors = Object.values(error.errors).map(
+        (err) => err.message
+      );
+
+      return res.status(400).json({
+        success: false,
+        message: errors[0],
+      });
+    }
+
+    return res.status(500).json({
       success: false,
-      message: error.message,
+      message: "Internal Server Error",
     });
   }
 };
